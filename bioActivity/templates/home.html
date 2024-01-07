@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %} Home {% endblock %}
+{% block content %} 
+<form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form }}
+    {% comment %} <input type="file" name="file" class='mt-5'> {% endcomment %}
+    <button type="submit", class="btn btn-success">Predict</button>
+</form>
+{% endblock %}
