@@ -4,4 +4,4 @@ from django.db import models
 
 class SmilesData(models.Model):
     smiles = models.CharField(max_length=256)
-    pic50 = models.IntegerField(max_length=256)
+    pic50 = models.IntegerField()
