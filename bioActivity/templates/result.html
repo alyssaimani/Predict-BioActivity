@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %} Result {% endblock %}
+{% block content %} 
+<form action="/donwload" method="POST">
+    {% csrf_token %}
+    <button class="btn btn-primary">Download as CSV</button>
+</form>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">No.</th>
+      <th scope="col">Canonical Smiles</th>
+      <th scope="col">pIC50</th>
+      <th scope="col">Bioactivity Class</th>
+      <th></th>
+    </tr>
+  </thead>
+  {% for result in results %}
+  <tbody>
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+      <td>{{ result.smiles }}</td>
+      <td>{{ result.pIC50 }}</td>
+      <td>{% if result.class == 1 %}Active{% else %}Inactive{% endif %}</td>
+      <td>
+        <form action="#" method="POST">
+        {% csrf_token %}
+        <button class="btn btn-primary">Analyze</button>
+        </form>
+
+      </td>
+    </tr>
+  </tbody>
+  {% endfor %}
+</table>
+{% endblock %}
