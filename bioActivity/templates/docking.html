@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Molecular Docking {% endblock %}
+{% block content %} 
+<div class="d-flex justify-content-center">
+    <div class="d-flex flex-column" style="max-width:60vw">
+    <h2>Molecular Docking with AutoDock Vina</h2>
+    <h3>What is Molecular Docking?</h3>
+    <div class="d-flex justify-content-center"> 
+        <img src="{% static 'images/triggering.gif' %}" style="width:40vw" alt="Triggering">
+    </div>
+    <p class="text-center">(source: Cohen et al. ,2007)</p>
+    <br>
+    <p>Molecular docking is the process of precisely predicting the bioactive conformations and orientations of two interacting molecules as well as the tightness of their complex. This method allows researchers to understand the molecular interactions and binding affinity between the two, which is crucial for identifying potential drug candidates.</p>
+
+    <h3>AutoDock Vina Software</h3>
+    <div class="d-flex justify-content-center"> 
+        <img src="{% static 'images/vina_logo.png' %}" style="height:16vw" alt="Vina Logo">
+    </div>
+    <br>
+    AutoDock Vina was originally designed and implemented by Dr. Oleg Trott in the Molecular Graphics Lab (now CCSB) at The Scripps Research Institute. With its foundation in a straightforward scoring function and quick gradient-optimization conformational search, AutoDock Vina is a readymade computational docking tool. Computational docking is an emerging discipline for predicting how molecules interact and connect. The procedure is based on simulation approaches that seek to identify a system's preferred bound complex.
+    <div class="d-flex justify-content-center"> 
+        <img src="{% static 'images/vina_accuracy.png' %}" style="height:16vw" alt="Vina Accuracy">
+    </div>
+    <p class="text-center">(source: J. Eberhardt et al. ,2021)</p>
+    <p>AutoDock Vina greatly improves the average accuracy of binding mode predictions compared to the previous molecular docking software AutoDock 4, according to data testing on the training set used in AutoDock 4 development.</p>
+    <h3>Docking Result with the Highest pIC50 Value</h3>
+
+    <p>In this example, we investigate the inhibitory potential against Acetylcholinesterase (PDB ID: 4EY7) from a molecule with the highest pIC50 value (the best molecule), predicted with our Random Forest model. we conduct molecular docking simulation using AutoDock Vina software to get the docking position and the binding affinity of the best molecule. </p>
+    here are some details about the selected best molecule:
+    <li><b>SMILES :</b> C1CN(CCC1CCC2=NOC3=C2C=C4CC(=O)NC4=C3)CC5=CC=CC=C5</li>
+    <li><b>Source :</b> PubCHEM Open Source Database</li>
+    <li><b>pIC50 :</b> 9.065804</li>
+    <li><b>Bioactivity Class :</b> Active</li>
+    After we simulate molecular docking with Autodock Vina, we get the binding pose and affinity score for the enzyme target, which can be seen in the following visualization.
+    <b>Binding Pose:</b>
+    Yellow - the best molecule
+    Cyan - enzyme Acetylcholinesterase (PDB ID: 4EY7)
+    <div class="position-relative d-flex justify-content-center">
+        <div class="d-flex flex-column">
+        <div id="molViewer" style="width: 480px; height: 480px;">
+        </div>
+        <div class='d-flex grid gap-2 justify-content-center'>
+        <input type="button" value="Stick" onclick="viewer.removeAllSurfaces(); viewer.setStyle({},{stick:{}}); highestModel.setStyle({}, {stick: {colorscheme: 'yellowCarbon'}}); viewer.render();">
+        <input type="button" value="Cartoon" onclick="viewer.removeAllSurfaces(); viewer.setStyle({hetflag:false},{cartoon:{'color': 'cyan'}}); highestModel.setStyle({}, {stick: {colorscheme: 'yellowCarbon'}}); viewer.render();">
+        <input type="button" value="Surface" onclick="surf1 = viewer.addSurface($3Dmol.SurfaceType.VDW, {}, {hetflag:false,chain:'A'},{hetflag:false,chain:'A'}); highestModel.setStyle({}, {stick: {colorscheme: 'yellowCarbon'}});">
+        </div>
+        </div>
+    </div>
+    <br>
+    <table class="table">
+        <thead class="table-light">
+            <tr>
+            <th scope="col">mode</th>
+            <th scope="col">affinity</th>
+            <th scope="col">dist from best mode</th>
+            <th></th>
+            </tr>
+            <tr>
+            <th scope="col"></th>
+            <th scope="col">(kcal/mol)</th>
+            <th scope="col">rmsd l.b.</th>
+            <th>rmsd u.b.</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <th scope="row">1</th>
+            <td>-13.18</td>
+            <td>0</td>
+            <td>0</td>
+            </tr>
+            <tr>
+            <th scope="row">2</th>
+            <td>-11.42 </td>
+            <td>3.32</td>
+            <td>10.33</td>
+            </tr>
+            <tr>
+            <th scope="row">3</th>
+            <td>-11.34</td>
+            <td>2.023</td>
+            <td>3.081</td>
+            </tr>
+            <tr>
+            <th scope="row">4</th>
+            <td>-11.02</td>
+            <td>1.609</td>
+            <td>2.223</td>
+            </tr>
+            <tr>
+            <th scope="row">5</th>
+            <td>-10.92</td>
+            <td>3.584</td>
+            <td>10.3</td>
+            </tr>
+            <tr>
+            <th scope="row">6</th>
+            <td>-10.7</td>
+            <td>2.843</td>
+            <td>4.706</td>
+            </tr>
+            <tr>
+            <th scope="row">7</th>
+            <td>-10.67</td>
+            <td>3.593</td>
+            <td>9.67</td>
+            </tr>
+            <tr>
+            <th scope="row">8</th>
+            <td>-10.6</td>
+            <td>1.594</td>
+            <td>2.529</td>
+            </tr>
+            <tr>
+            <th scope="row">9</th>
+            <td>-10.51</td>
+            <td>3.551</td>
+            <td>10.97</td>
+            </tr>
+        </tbody>
+    </table>
+    <b>Best Binding Affinity: -13.18 kcal/mol</b>
+    <p>The molecular docking simulations have generated multiple binding modes of a candidate molecule interacting with the target protein. Each mode is evaluated based on its binding affinity, measured in kilocalories per mole (kcal/mol), and its root-mean-square deviation (RMSD) from the best-scoring pose, providing insights into the stability and similarity of the poses. The Mode 1 (shows in visualization) is exhibiting the highest binding affinity of -13.18 kcal/mol, this mode represents the most energetically favorable interaction between the molecule and the protein, serving as the reference for other modes.</p>
+    <b>Note:</b>
+    <li><b>RMSD Lower Bound (l.b.)</b>Reflects the minimum deviation from the best mode, suggesting how closely a particular mode resembles the optimal binding conformation.</li>
+    <li><b>RMSD Upper Bound (u.b.)</b>Provides the maximum deviation, indicating the range of conformational flexibility or variance from the best mode.</li>
+    <br>
+    <h3>References: </h3>
+        <p>Cohen, E., Cohen, C., & Schneidman, D. (2007). Molecular Docking. Drug Design. Retrieved from https://www.drugdesign.org/chapters/molecular-docking/</p>
+        <p>J. Eberhardt, D. Santos-Martins, A. F. Tillack, and S. Forli. (2021). AutoDock Vina 1.2.0: New Docking Methods, Expanded Force Field, and Python Bindings. Journal of Chemical Information and Modeling.</p>
+        <p>O. Trott, A. J. Olson, AutoDock Vina: improving the speed and accuracy of docking with a new scoring function, efficient optimization and multithreading, Journal of Computational Chemistry 31 (2010) 455-461</p>
+    </div>
+</div>
+<script type="text/javascript">
+    let viewer = new $3Dmol.createViewer('molViewer', {
+    defaultcolors: $3Dmol.rasmolElementColors
+    });
+
+    // Add the receptor model and set its style to 'cartoon'
+    let receptorModel = viewer.addModel(`{{ receptor|safe }}`, 'pdb');
+    receptorModel.setStyle({}, {cartoon: {color: 'cyan'}});
+
+    // Add the highest-affinity ligand model and set its style to 'stick'
+    let highestModel = viewer.addModel(`{{ highest|safe }}`, 'pdb');
+    highestModel.setStyle({}, {stick: {colorscheme: 'yellowCarbon'}});
+
+    viewer.zoomTo(); // Adjusts the camera to view all models
+    viewer.spin(true); // Starts the spin animation
+    viewer.render(); // Renders the scene
+    const canvas = viewer.getCanvas();
+        if (canvas) {
+            canvas.style.margin = 'auto';
+            canvas.style.position = 'relative';
+            canvas.id = 'molViewerCanvas';}
+</script>
+{% endblock %}
+

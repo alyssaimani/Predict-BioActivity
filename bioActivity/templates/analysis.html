@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Analysis {% endblock %}
+{% block content %} 
+<h1>Analysis</h1>
+<p><b>Smiles: </b>{{ smiles }}</p>
+<p><b>pIC50: </b>{{ pic50 }}</p>
+<p><b>Bioactivity Class: </b>{{ bio_class|yesno:"Active,Inactive" }}</p>
+{% comment %} <h2>LIME Explanation</h2>
+<p><b>Note:</b>The LIME Explanation shows below describe the local feature importance from selected molecule.</p>
+<div id="lime-explanation">
+    {{ lime_html|safe }}
+ </div> {% endcomment %}
+<h2>SHAP Summary</h2>
+<img src="{% static 'images/shap_summary.png' %}" style="height: 100vh;" alt="SHAP Summary Plot">
+
+<h2>Morgan Fingerprints</h2>
+    <div class="row d-flex justify-content-center">
+    {% for image, vector in images_vectors %}
+        <div class="card m-2 d-flex align-items-center" style="width: 18rem;">
+            {{ image|safe }}
+            <div class="card-body">
+                <p class="card-text text-center fw-bold">{{ vector|safe }}</p>
+            </div>
+        </div>
+        {% if forloop.counter|divisibleby:4 and not forloop.last %}
+            </div><div class="row d-flex justify-content-center">
+        {% endif %}
+    {% endfor %}
+    </div>
+{% endblock %}

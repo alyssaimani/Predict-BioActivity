@@ -1,9 +1,43 @@
 {% extends "base.html" %}
 {% block title %} Home {% endblock %}
-{% block content %} 
-<form method="POST" action="" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_table }}
-    <button type="submit", class="btn btn-primary">Predict</button>
-</form>
+{% block content %}
+<div class="d-flex justify-content-center text-center">
+<p style="width:60vw">Welcome to Predict BioActivity a tool designed for predicting molecular bioactivity, specifically targeting Human Acetylcholinesterase (PDB ID: 4EY7), an enzyme closely associated with Alzheimer's pathology.</p>
+</div>
+<div class="position-relative d-flex justify-content-center">
+    <div class="d-flex flex-column">
+    <div id="molViewer" style="width: 400px; height: 400px;">
+    </div>
+    <div class='d-flex grid gap-2 justify-content-center'>
+    <input type="button" value="Stick" onclick="viewer.removeAllSurfaces(); viewer.setStyle({},{stick:{}}); viewer.render();">
+    <input type="button" value="Cartoon" onclick="viewer.removeAllSurfaces(); viewer.setStyle({hetflag:false},{cartoon:{'color': 'spectrum'}}); viewer.render();">
+    <input type="button" value="Surface" onclick="surf1 = viewer.addSurface($3Dmol.SurfaceType.VDW, {}, {hetflag:false,chain:'A'},{hetflag:false,chain:'A'});">
+    </div>
+    </div>
+</div>
+<div class="d-flex justify-content-center mt-3">
+<div>
+    <p><b>Upload your list of SMILES string in .csv, .xlsx or .txt format</b></p>
+    <form method="POST" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_table }} 
+        <button type="submit", class="btn btn-primary">Predict</button>
+    </form>
+</div>
+</div>
+<script type="text/javascript">
+    let viewer = new $3Dmol.createViewer('molViewer', {
+        defaultcolors: $3Dmol.rasmolElementColors
+    });
+    viewer.addModel(`{{ protein_pdb|safe }}`, 'pdb');
+    viewer.setStyle({'cartoon': {'color': 'spectrum'}});
+    viewer.zoomTo();
+    viewer.spin(true);
+    viewer.render();
+    const canvas = viewer.getCanvas();
+        if (canvas) {
+            canvas.style.margin = 'auto';
+            canvas.style.position = 'relative';
+            canvas.id = 'molViewerCanvas';}
+</script>
 {% endblock %}
