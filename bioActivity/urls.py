@@ -8,4 +8,6 @@ urlpatterns = [
     path("result/donwload/", views.download, name="download"),
     path("result/analysis/", views.analize, name="analysis"),  
     path("docking/", views.docking, name="docking"),  
+    path("randomforest/", views.randomforest, name="randomforest"),  
+    path("shapley/", views.shapley, name="shapley"),  
 ]

@@ -11,10 +11,85 @@
 <div id="lime-explanation">
     {{ lime_html|safe }}
  </div> {% endcomment %}
-<h2>SHAP Summary</h2>
-<img src="{% static 'images/shap_summary.png' %}" style="height: 100vh;" alt="SHAP Summary Plot">
-
+<br>
+<div class="container">
+    <div class="row">
+    <div class="col">
+        <h2>SHAP Summary</h2>
+        <div style="width:40vw">
+            <li>This SHAP summary graph provides a visual interpretation of the feature importance and effects across the entire dataset used in our Random Forest classification model.</li> 
+            <li>The graph displays each feature on the y-axis, ranked in order of significance in influencing the model's predictions.</li>
+            <li>The x-axis represents the SHAP value, which quantifies the impact of each feature.</li>
+        </div>
+    </div>
+        <div class="col">
+            <img src="{% static 'images/shap_summary.png' %}" style="height:70vh" alt="SHAP Summary Plot">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h2>Molecule Visualization</h2>
+            <p>The Molecule Visualization colored based on their elements:</p>
+                <table class="table" style="width:24vw">
+                    <thead class="table-light">
+                        <tr>
+                        <th class="text-center">Color</th>
+                        <th class="text-center">Element</th>
+                        <th class="text-center">Symbol</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                        <td style="background-color: #ff0000"></td>
+                        <td>Oxygen</td>
+                        <td class="text-center">O</td>
+                        </tr>
+                        <tr>
+                        <td style="background-color: #3333ff"></td>
+                        <td>Nitrogen</td>
+                        <td class="text-center">N</td>
+                        </tr>
+                        <tr>
+                        <td style="background-color: #e5c53f"></td>
+                        <td>Sulfur</td>
+                        <td class="text-center">S</td>
+                        </tr>
+                        <tr>
+                        <td style="background-color: #a52929"></td>
+                        <td>Bromine</td>
+                        <td class="text-center">Br</td>
+                        </tr>
+                        <tr>
+                        <td style="background-color: #ff7f00"></td>
+                        <td>Phosphorus</td>
+                        <td class="text-center">P</td>
+                        </tr>
+                        <tr>
+                        <td style="background-color: #1ef01e"></td>
+                        <td>Clorine</td>
+                        <td class="text-center">Cl</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+        </div>
+        <div class="col">
+            <div class="position-relative">
+                <div class="d-flex flex-column">
+                    <div id="molViewer" style="width: 400px; height: 400px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
 <h2>Morgan Fingerprints</h2>
+    <li>Morgan Fingerprints is a vector that represents the substructure of a molecule with varying atomic radii.</li>
+    <li>In total there are 1024 substructures generated using the Morgan algorithm.</li> 
+    <li>These substructures are features used to train the Random Forest model to predict pIC50 and bioactivity class classification.</li>
+    <li>The substructures shown below are the substructures that exist in the selected molecule.</li> 
+    <br>
     <div class="row d-flex justify-content-center">
     {% for image, vector in images_vectors %}
         <div class="card m-2 d-flex align-items-center" style="width: 18rem;">
@@ -28,4 +103,19 @@
         {% endif %}
     {% endfor %}
     </div>
+<script type="text/javascript">
+    let viewer = new $3Dmol.createViewer('molViewer', {
+        defaultcolors: $3Dmol.rasmolElementColors
+    });
+    viewer.addModel(`{{ molecule_pdb|safe }}`, 'pdb');
+    viewer.setStyle({'stick': {}});
+    viewer.zoomTo();
+    viewer.spin(true);
+    viewer.render();
+    const canvas = viewer.getCanvas();
+        if (canvas) {
+            canvas.style.margin = 'auto';
+            canvas.style.position = 'relative';
+            canvas.id = 'molViewerCanvas';}
+</script>
 {% endblock %}

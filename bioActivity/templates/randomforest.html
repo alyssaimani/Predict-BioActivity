@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Random Forest {% endblock %}
+{% block content %} 
+<div class="d-flex justify-content-center">
+    <div class="d-flex flex-column" style="max-width:60vw">
+        <h1>Random Forest</h1>
+
+        <p>Random Forest is one of the machine learning algorithms that falls under the category of ensemble learning. Ensemble learning combines multiple models or algorithms to improve the performance and stability of predictions. Random Forest can be used for both classification tasks and regression. It consists of several decision trees, where the more decision trees that are used, the higher the accuracy will be. The combination of decision trees can help reduce the risk of overfitting, which often occurs with single decision trees.</p>
+
+        <p>Random Forest is a modification of the bagging method that creates many uncorrelated decision trees and then computes their average (Breiman, 2001). The main idea behind bagging is to average many noisy but almost unbiased models, thereby reducing their variance. Decision trees are ideal candidates for bagging because they can capture complex interactions. Here is the Random Forest algorithm for regression or classification:</p>
+        <ol>
+            <li>For b = 1 to B:</li>
+            <ol style="list-style-type:lower-alpha">
+                <li>Create a bootstrap sample Z* of size N from the training data.</li>
+                <li>Build a Decision Tree T_b using the bootstrap sample dataset, by recursively repeating the following steps for each Decision Tree node, until the minimum node size n_min is reached.</li>
+                <ol style="list-style-type:upper-roman">
+                    <li>Randomly select m variables from all p variables.</li>
+                    <li>Choose the best variable/split point among the m variables.</li>
+                    <li>Split the node into two child nodes.</li>
+                </ol>
+            </ol>
+            <li>Create the output prediction for the ensemble of Decision Trees \( \{T_b\}_1^B \).</li>
+            <p>To make a prediction on a new data point x:</p>
+            <p>Regression: \( \hat{f}_{rf}^B(x) = \frac{1}{B} \sum_{b=1}^B T_b(x) \).</p>
+            <p>Classification: Let \( \hat{C}_b(x) \) be the predicted class from the b-th Decision Tree. Then \( \hat{C}_{rf}^B(x) = \text{mode} \{ \hat{C}_b(x) \}_1^B \) (majority vote).</p>
+        </ol>
+        <h2>Bootstrap</h2>
+        <p>Bootstrap is a common tool for assessing statistical accuracy. Similar to cross-validation, bootstrap attempts to estimate the conditional error ErrT, but usually can estimate well the expected prediction error Err. For instance, there is a model trained on a training data set \( Z=(z_1,z_2,...,z_N) \) where \( z_i=(x_i,y_i) \). The basic idea of bootstrap is to randomly take a dataset by returning the data that has been taken from the training data, each bootstrap dataset sample has the same size as the original training dataset. This process is done as many as B times, generally B=100 so it will produce 100 bootstrap datasets. Then the model is retrained to each bootstrap dataset, and the behavior of the fit is checked on the B replications. The bootstrap process scheme can be seen in the following image:</p>
+        <div class="d-flex justify-content-center"> 
+            <img src="{% static 'images/bootstrap.jpeg' %}" style="height:25vw" alt="Bootstrap">
+        </div>
+        <br>
+        <p>To assess the accuracy of a number \( S(Z) \) taken from the dataset, where the values \( S(Z^{*1}), ..., S(Z^{*B}) \) are used to assess the accuracy of \( S(Z) \). As many as B sets of training dataset \( Z^{*b}, b=1,2,...,B \), each of size N are taken by returning data from the original dataset. To calculate the prediction error estimate with bootstrap, it can be done by training the model on each bootstrap dataset, and then comparing how well the prediction results match the true value from the original training dataset. If \( f^{*b} (x) \) predicts the value at \( x_i \), from the model trained on the b-th bootstrap dataset, then the error estimate is:</p>
+        
+        $$ \hat{Err}_{boot} = \frac{1}{B} * \frac{1}{N} * ∑_{b=1}^B ∑_{i=1}^N L(y_i, \hat{f}^{*b} (x_i)) $$
+
+        <p>However, this error calculation still cannot generally produce a good estimate, because in this error calculation, the bootstrap dataset acts as the training sample and the original training dataset as the test dataset, where both datasets overlap each other. This can cause overfitting, so by mimicking the concept of cross-validation, the error estimation calculation can produce a better estimate. This method is called leave-one-out bootstrap and is defined as follows:</p>
+
+        $$ \hat{Err}^{(1)} = \frac{1}{N} * ∑_{i=1}^N \frac{1}{|C^{-i}|} * ∑_{b∈C^{-i}} L(y_i, \hat{f}^{*b} (x_i)) $$
+        
+        <p>Here, \( C^{-i} \) is a set of indices from the bootstrap sample b that does not include observation i, and \( |C^{-i}| \) is the number of such samples. In calculating \( \hat{Err}^{(1)} \), it is necessary to choose a sufficiently large B to ensure that all \( |C^{-i}| \) are greater than zero, or to ignore when \( |C^{-i}| \) is zero.</p>
+
+        <h2>Bagging</h2>
+        <div class="d-flex justify-content-center"> 
+            <img src="{% static 'images/bagging.jpeg' %}" style="height:50vw" alt="Bootstrap">
+        </div>
+        <br>
+        <p>Bagging or bootstrap aggregation is a method to reduce the variance of a prediction function estimation (Hastie, 2016). For example, if we want to fit a model with training data \( Z={(x_1,y_1), (x_2,y_2), ..., (x_N,y_N)} \) to obtain the predicted outcome \( \hat{f}(x) \) for input x. Bagging calculates the average of predictions for each collection of bootstrap dataset samples, to reduce its variance. For each bootstrap sample \( Z^{*b}, b=1,2,...,B \), a model is fitted to obtain the prediction \( \hat{f}^{*b}(x) \). The bagging estimate is defined as follows:</p>
+        $$ \hat{f}_{bag} (x)=\frac{1}{B} ∑_{b=1}^B f^{*b}(x)$$
+        <h2>References</h2>
+        <p>Breiman, L. (2001). Random Forests. Machine Learning, 45(1), 5–32. https://doi.org/10.1023/A:1010933404324</p>
+        <p>Hastie, T. T. R. F. J. (2016). The Elements of Statistical Learning (2nd ed.). Springer.</p>
+        <br>
+    </div>
+</div>
+
+<script>
+   window.MathJax = {
+      tex: {
+         inlineMath: [['\\(', '\\)']],
+         displayMath: [['$$', '$$']]
+      },
+      svg: {
+         fontCache: 'global'
+      }
+   };
+
+   (function () {
+      var script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js';
+      script.async = true;
+      document.head.appendChild(script);
+   })();
+</script>
+
+{% endblock %}

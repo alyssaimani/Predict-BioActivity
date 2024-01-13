@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} SHAP {% endblock %}
+{% block content %} 
+<div class="d-flex justify-content-center">
+    <div class="d-flex flex-column" style="max-width:60vw">
+    <h1>SHAP (SHapley Additive exPlanations)</h1>
+    <p>Lundberg and Lee (2017) developed SHAP (SHapley Additive exPlanations) to explain individual predictions. SHAP is based on the game theory's optimal Shapley values. SHAP aims to explain the prediction of an instance x by calculating the contribution of each characteristic to the prediction. The SHAP explanation technique uses coalitional game theory to compute Shapley values. The feature values of a data instance act as coalition members.One novelty brought to the table by SHAP is the representation of the Shapley value explanation as an additive feature attribution technique, or linear model. SHAP defines the explanation as:</p>
+    $$ g(z') = \phi_0 + \sum_{j=1}^{M} \phi_j z'_j $$
+   <p>Where:</p>
+   <ul style="list-style-type:circle">
+      <li>\( g(z') \) is the explanation model, a simplified version of the complex model being explained.</li>
+      <li>\( \phi_0 \) represents the base value or the average prediction over the dataset. It's the starting point for the additive explanation.</li>
+      <li>\( \sum_{j=1}^{M} \phi_j z'_j \) is the sum of the SHAP values for each feature.</li>
+      <li>\( \phi_j \) is the SHAP value for the \( j \)th feature, indicating its contribution to moving the prediction from the base value.</li>
+      <li>\( z'_j \) is a binary variable indicating the presence (1) or absence (0) of the \( j \)th feature in the specific instance being explained.</li>
+      <li>\( M \) is The total number of features in the model.</li>
+   </ul>
+   <p><b>Interpretation: </b>The model's prediction for a specific instance is approximated by the sum of the base value and the contributions of each feature. Each feature's contribution depends on its SHAP value and whether it's present in the specific instance.</p>
+    <h2>Shapley Value</h2>
+    <p>The Shapley value for each feature (player) is calculated using a specific formula. For a feature <i>i</i> in a set of features <i>N</i>, its Shapley value \(ϕ(i)\) is calculated as follows:</p>
+
+    $$ \phi_j(\text{val}) = \sum_{S \subseteq \{1, \ldots, p\} \setminus \{j\}} \frac{|S|! (p - |S| - 1)!}{p!} \left( \text{val}(S \cup \{j\}) - \text{val}(S) \right) $$
+   <p>Where:</p>
+   <ul style="list-style-type: circle">
+      <li>\( S \) is a subset of features without \( i \).</li>
+      <li>\( |S| \) is the number of features in \( S \).</li>
+      <li>\( |N| \) is the total of features in.</li>
+      <li>\( v(S∪{i}) \) is the value (model output) when \( i \) is included in the subset.</li>
+      <li>\( v(S) \) is the value when \( i \) is not in the subset.</li>
+      <li>The fraction in front of the bracket is a weighting factor that accounts for the number of ways to form the subset \( S \) and its complement in \( N \)</li>
+      <li>\( [v(S∪{i})-v(S)] \) is the marginal contribution of feature \( i \) when added to the subset \( S \)</li>
+   </ul>
+    
+    <h2>References</h2>
+    <p>Lundberg, Scott M., and Su-In Lee. “A unified approach to interpreting model predictions.” Advances in Neural Information Processing Systems (2017).</p>
+    <p>Molnar, C. (2023). Interpretable Machine Learning: A Guide for Making Black Box Models Explainable. Retrieved from https://christophm.github.io/interpretable-ml-book/</p>
+    </div>
+    <br>
+</div>
+
+<script>
+   window.MathJax = {
+      tex: {
+         inlineMath: [['\\(', '\\)']],
+         displayMath: [['$$', '$$']]
+      },
+      svg: {
+         fontCache: 'global'
+      }
+   };
+
+   (function () {
+      var script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js';
+      script.async = true;
+      document.head.appendChild(script);
+   })();
+</script>
+{% endblock %}
