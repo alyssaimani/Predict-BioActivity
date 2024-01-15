@@ -26,6 +26,7 @@
             <img src="{% static 'images/shap_summary.png' %}" style="height:70vh" alt="SHAP Summary Plot">
         </div>
     </div>
+    <br>
     <div class="row">
         <div class="col">
             <h2>Molecule Visualization</h2>
@@ -76,7 +77,16 @@
         <div class="col">
             <div class="position-relative">
                 <div class="d-flex flex-column">
-                    <div id="molViewer" style="width: 400px; height: 400px;">
+                    <div class="card d-flex pt-3 align-items-center bg-primary-subtle" style="width: 450px; height: 480px;">
+                            <div id="molViewer" style="width: 400px; height: 400px;">
+                            </div>
+                        <div class="card-body">
+                            <form action="downloadpdb/" method="GET">
+                                {% csrf_token %}
+                                <input type="hidden" name="smiles" value="{{ smiles }}">
+                                <button class="btn btn-primary">Download PDB</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

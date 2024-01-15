@@ -91,6 +91,9 @@ def randomforest(request):
 def shapley(request):
     return render(request, 'shapley.html')
 
+def help(request):
+    return render(request, 'help.html')
+
 def predict(file):
     ext = os.path.splitext(file.name)[1]
     if ext.lower() == '.csv':
@@ -125,7 +128,10 @@ def run_SHAP(fingeprints, class_model):
     plt.figure()
     shap.summary_plot(shap_values, df_fingerprints, feature_names=df_fingerprints.columns, show=False)
     # Save the plot to a file
+    
     plot_path = 'static/images/shap_summary.png'
+    if os.path.exists(plot_path):
+        os.remove(plot_path)
     plt.savefig(plot_path, bbox_inches='tight')
     plt.close()
 
@@ -155,7 +161,7 @@ def save_data(data):
 
     return
 
-def download(request):
+def downloadcsv(request):
     smiles_data = SmilesData.objects.all()
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="smiles_data.csv"'
@@ -165,3 +171,14 @@ def download(request):
         writer.writerow([data.smiles, data.pic50, data.bio_class])
 
     return response
+
+def downloadpdb(request):
+    smiles = request.GET.get('smiles', '')
+    smiles_data = SmilesData.objects.get(smiles=smiles)
+    pdb_path = smiles_data.pdb_file.path
+    with open(pdb_path, 'r') as file:
+            molecule_pdb = file.read()
+    response = HttpResponse(molecule_pdb, content_type='chemical/x-pdb')
+    response['Content-Disposition'] = 'attachment; filename="molecule.pdb"'
+    return response
+    
