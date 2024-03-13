@@ -2,17 +2,19 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.shortcuts import render
-from .models import SmilesData, CurrSmilesData
+from .models import SmilesData
 from .forms import InsertFile
 from .utils import get_fingerprints
 import pickle, os, csv, shap, uuid
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 import pandas as pd
 import dill as pickle_dill
 from PIL import Image 
 from rdkit.Chem import Draw, AllChem
 from rdkit import Chem
-
+import json
 # Create your views here.
 def home(request):
 
@@ -24,6 +26,8 @@ def home(request):
             results = results.drop_duplicates(subset=['smiles'])
             save_data(results)
             results = results.to_dict(orient='records')
+
+            request.session['results'] = results
             return redirect('result')
     else:
         with open('assets/pdb_files/clean_receptor.pdb', 'r') as file:
@@ -33,7 +37,8 @@ def home(request):
     return render(request, 'home.html', {'form':form, 'protein_pdb': protein_pdb})
 
 def result(request):
-    results = CurrSmilesData.objects.all().order_by('-pic50')
+    results = request.session.get('results')
+    results = sorted(results, key=lambda x: x['pIC50'], reverse=True)
     return render(request, 'result.html', {'results':results})
 
 def about(request):
@@ -57,10 +62,12 @@ def analize(request):
     pdb_path = smiles_data.pdb_file.path
     with open(pdb_path, 'r') as file:
             molecule_pdb = file.read()
-    
-    lime_html = run_lime(fingerprints)
 
-    return render(request, 'analysis.html', {'smiles':smiles, 'pic50':pic50, 'bio_class':bio_class, 'images_vectors':images_vectors, 'lime_html':lime_html, 'molecule_pdb':molecule_pdb})
+    class_model = pickle.load(open("assets/models/classification_model.pkl", 'rb'))
+    lime_html = run_lime(fingerprints)
+    shap_neg, shap_pos = force_plot(fingerprints)
+
+    return render(request, 'analysis.html', {'smiles':smiles, 'pic50':pic50, 'bio_class':bio_class, 'images_vectors':images_vectors, 'lime_html':lime_html, 'molecule_pdb':molecule_pdb, 'shap_neg': shap_neg, 'shap_pos': shap_pos})
 
 def run_lime(fingerprints):
     # Lime visualization
@@ -118,7 +125,7 @@ def predict(file):
     results['pIC50'] =  pIC50_pred
     results['bio_class'] = [True if pred == 1 else False for pred in class_pred]
     
-    return results  
+    return results
 
 def run_SHAP(fingeprints, class_model):
     # SHAP visualization
@@ -137,6 +144,21 @@ def run_SHAP(fingeprints, class_model):
 
     return
 
+def force_plot(fingerprints):
+    
+    class_model = pickle.load(open("assets/models/classification_model.pkl", 'rb'))
+    df_fingerprints = pd.DataFrame(fingerprints)
+    explainer = shap.TreeExplainer(class_model)
+    shap_values = explainer.shap_values(df_fingerprints, check_additivity=False)
+    shap.initjs()
+    force_plot_neg = shap.force_plot(explainer.expected_value[0], shap_values[0][0, :], df_fingerprints.iloc[0], show=False)
+    force_plot_pos = shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], df_fingerprints.iloc[0], show=False)
+
+    shap_neg = f"<head>{shap.getjs()}</head><body>{force_plot_neg.html()}</body>"
+    shap_pos = f"<head>{shap.getjs()}</head><body>{force_plot_pos.html()}</body>"
+
+    return shap_neg, shap_pos
+
 def generate_pdb(smiles):
     # Convert SMILES to RDKit molecule
     molecule = Chem.MolFromSmiles(smiles)
@@ -146,15 +168,13 @@ def generate_pdb(smiles):
     return Chem.MolToPDBBlock(molecule)
 
 def save_data(data):
-    CurrSmilesData.objects.all().delete()
+    
     for _,row in data.iterrows():
         smiles = row['smiles']
         # Generate PDB file for the molecule
         pdb_file = generate_pdb(smiles)
 
         pdb_name = f"{uuid.uuid4()}.pdb"
-        
-        CurrSmilesData.objects.create(smiles=smiles, pic50=row['pIC50'], bio_class=row['bio_class'])
         
         smiles_data,_ = SmilesData.objects.get_or_create(smiles=row['smiles'], pic50=row['pIC50'], bio_class=row['bio_class'])
         smiles_data.pdb_file.save(f"{pdb_name}.pdb", ContentFile(pdb_file.encode()))

@@ -3,19 +3,37 @@
 {% block title %} Analysis {% endblock %}
 {% block content %} 
 <h1>Analysis</h1>
-<p><b>Smiles: </b>{{ smiles }}</p>
+<p><b>SMILES: </b>{{ smiles }}</p>
 <p><b>pIC50: </b>{{ pic50 }}</p>
-<p><b>Bioactivity Class: </b>{{ bio_class|yesno:"Active,Inactive" }}</p>
-{% comment %} <h2>LIME Explanation</h2>
+<p><b>Bioactivity Class: </b>{{ bio_class|yesno:"Active, Inactive" }}</p>
+ {% comment %} <h2>LIME Explanation</h2>
 <p><b>Note:</b>The LIME Explanation shows below describe the local feature importance from selected molecule.</p>
 <div id="lime-explanation">
     {{ lime_html|safe }}
- </div> {% endcomment %}
+ </div>  {% endcomment %}
 <br>
 <div class="container">
     <div class="row">
+        <h2>SHAP Force Plot</h2>
     <div class="col">
+        <div style="width:40vw">
+            <li><b>Base Value:</b> the average prediction for each class over the dataset</li>
+            <li><b>f(x):</b> The model prediction for the selected compound</li>
+            <li><b>feature=0:</b> Represents the absence of a feature</li>
+            <li><b>feature=1:</b> Represents the presence of a feature</li>
+        </div>
+    </div>
+    <div class="col">
+        <h3>Class Active</h3>
+        {{ shap_pos|safe }}
+        <h3>Class Inactive</h3>
+        {{ shap_neg|safe }}
+    </div>
+    <br>
+    </div>
+    <div class="row">
         <h2>SHAP Summary</h2>
+    <div class="col">
         <div style="width:40vw">
             <li>This SHAP summary graph provides a visual interpretation of the feature importance and effects across the entire dataset used in our Random Forest classification model.</li> 
             <li>The graph displays each feature on the y-axis, ranked in order of significance in influencing the model's predictions.</li>
@@ -29,8 +47,8 @@
     <br>
     <div class="row">
         <div class="col">
-            <h2>Molecule Visualization</h2>
-            <p>The Molecule Visualization colored based on their elements:</p>
+            <h2>3D Structure Visualization</h2>
+            <p>The 3D Structure Visualization colored based on their elements:</p>
                 <table class="table" style="width:24vw">
                     <thead class="table-light">
                         <tr>
